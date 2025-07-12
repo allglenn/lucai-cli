@@ -1,0 +1,28 @@
+{
+  "name": "lucai-cl",
+  "version": "1.0.0",
+  "description": "A powerful, AI-driven code review CLI.",
+  "main": "lib/reviewer.js",
+  "bin": {
+    "lucai": "bin/cqpulse.js"
+  },
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google/generative-ai": "^0.15.0",
+    "chalk": "^4.1.2",
+    "commander": "^14.0.0",
+    "figlet": "^1.8.2",
+    "inquirer": "^8.2.6",
+    "openai": "^5.9.0",
+    "ora": "^5.4.1",
+    "sqlite3": "^5.1.7"
+  }
+}

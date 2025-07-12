@@ -78,7 +78,8 @@ async function reviewAction(options) {
       return;
     }
     spinner.text = 'The AI is reviewing your code. This may take a moment...';
-    const reviewResult = await performReview(files, model);
+    const isSingleFile = !!options.file;
+    const reviewResult = await performReview(files, model, isSingleFile);
     spinner.stop();
     if (options.outputFile) {
       const report = generateMarkdownReport(reviewResult);

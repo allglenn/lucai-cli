@@ -1,5 +1,12 @@
 #!/usr/bin/env node
 
+// Polyfill for fetch and related browser APIs
+const fetch = require('node-fetch');
+global.fetch = fetch;
+global.Headers = fetch.Headers;
+global.Request = fetch.Request;
+global.Response = fetch.Response;
+
 const { Command } = require('commander');
 const chalk = require('chalk');
 const inquirer = require('inquirer');

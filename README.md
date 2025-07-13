@@ -1,5 +1,8 @@
 # lucai
 
+> **⚠️ Under Construction**  
+> This bot is still in active development. Features may be incomplete or subject to change. We're working hard to make it production-ready!
+
 A powerful, AI-driven code review CLI that goes beyond static analysis to provide deep, contextual feedback.
 
 ## Overview

@@ -4,7 +4,7 @@
   "description": "A powerful, AI-driven code review CLI.",
   "main": "lib/reviewer.js",
   "bin": {
-    "lucai": "bin/cqpulse.js"
+    "lucai": "bin/lucai.js"
   },
   "directories": {
     "lib": "lib"

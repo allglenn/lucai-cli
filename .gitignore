@@ -16,4 +16,7 @@ lerna-debug.log*
 .env.test.local
 .env.production.local
 
+# Editor files
+.cursor/
+
 review-report.md

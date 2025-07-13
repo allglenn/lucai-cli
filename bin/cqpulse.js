@@ -177,6 +177,6 @@ function displayCustomHelp() {
   });
   console.log('');
   console.log(chalk.gray('  Created by Glenn Allogho (glennfreelance365@gmail.com)'));
-  console.log(chalk.gray('  LinkedIn: glenn-allogho | Twitter: @glenn_all | Github: @allglenn'));
+  console.log(chalk.gray('  LinkedIn: glenn-allogho-94649688 | Twitter: @glenn_all | Github: @allglenn'));
   console.log();
 } 

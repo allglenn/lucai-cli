@@ -97,7 +97,7 @@ See the [Product Requirements Document](.cursor/lucai-review.prd.md) for the det
 Created by **Glenn Allogho**
 
 -   **Email**: `glennfreelance365@gmail.com`
--   **LinkedIn**: [glenn-allogho](https://www.linkedin.com/in/glenn-allogho/)
+-   **LinkedIn**: [glenn-allogho](https://www.linkedin.com/in/glenn-allogho-94649688/)
 -   **Medium**: [@glennlenormand](https://medium.com/@glennlenormand)
 -   **Twitter**: [@glenn_all](https://twitter.com/glenn_all)
 -   **GitHub**: [@allglenn](https://github.com/allglenn)

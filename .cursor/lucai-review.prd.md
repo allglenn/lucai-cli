@@ -148,3 +148,8 @@ Our vision is to evolve `lucai` from a powerful review tool into a strategic par
 - **Historical Context Analysis**: Flag changes in historically unstable or complex files, providing context from `git blame` and commit history.
 - **Intelligent Reviewer Suggestions**: Recommend primary and secondary reviewers for a PR based on who has the most recent and relevant context on the changed files.
 - **Codebase Health Dashboard**: A long-term vision to track code quality metrics, identify tech debt hotspots, and monitor architectural drift over time.
+
+### 🌌 v0.5: Autonomous Development Partner
+- **AI-Powered Autofix**: Go beyond suggesting fixes by automatically generating and applying patches for safe refactorings (`lucai review --apply-fixes`). For PRs, the GitHub Action can commit these fixes directly to the branch for approval.
+- **"Blast Radius" Analysis**: Enhance impact analysis by tracing function calls across the entire codebase. For a changed function, `lucai` will analyze all call sites to detect potential downstream breakages and report them proactively.
+- **"Code Archaeologist" Mode**: Provide deep context by digging into git history. When reviewing a complex piece of code, `lucai` will find the commit it originated from and summarize the original commit message and PR discussion to answer the question: *"Why was this written this way?"*

@@ -110,6 +110,23 @@ async function configureAction() {
       choices: ['openai', 'google'],
     },
   ]);
+
+  const existingApiKey = getApiKey(provider);
+  if (existingApiKey) {
+    const { overwrite } = await inquirer.prompt([
+      {
+        type: 'confirm',
+        name: 'overwrite',
+        message: `An API key for ${provider} already exists. Do you want to overwrite it?`,
+        default: false,
+      },
+    ]);
+    if (!overwrite) {
+      console.log(chalk.yellow('Configuration cancelled.'));
+      return;
+    }
+  }
+
   const { apiKey } = await inquirer.prompt([
     {
       type: 'password',

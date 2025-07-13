@@ -13,6 +13,10 @@ A powerful, AI-driven code review CLI that goes beyond static analysis to provid
 - **Multiple Output Formats**: Choose from markdown, JSON, or inline comments.
 - **Customizable**: Use different AI models and custom prompts.
 
+## Handling Large Files
+
+When `lucai` encounters a file that is too large for the selected AI model's context window, it automatically splits the file into smaller chunks. This allows `lucai` to review even very large files without running into context length issues. The chunks are processed individually and the feedback is then combined, giving you a complete picture of your code's quality.
+
 ## Getting Started
 
 ### Prerequisites

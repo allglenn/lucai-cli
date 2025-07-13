@@ -21,9 +21,10 @@
     "commander": "^14.0.0",
     "figlet": "^1.8.2",
     "inquirer": "^8.2.6",
+    "js-tiktoken": "^1.0.20",
     "openai": "^5.9.0",
     "ora": "^5.4.1",
-    "sqlite3": "^5.1.7",
-    "tiktoken": "^1.0.21"
+    "simple-git": "^3.28.0",
+    "sqlite3": "^5.1.7"
   }
 }

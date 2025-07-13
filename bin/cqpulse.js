@@ -9,6 +9,7 @@ const { setConfig, getApiKey, getConfig } = require('../lib/config');
 const { addReview } = require('../lib/database');
 const { performReview } = require('../lib/reviewer');
 const { getCodeContent } = require('../lib/scanner');
+const { getChangedFiles } = require('../lib/git');
 const { printMarkdownReport, generateMarkdownReport } = require('../lib/markdownReport');
 const fs = require('fs');
 const path = require('path');
@@ -21,9 +22,14 @@ const defaultModel = config.provider === 'google' ? 'gemini-1.5-pro-latest' : 'g
 program
   .name('lucai')
   .description('A powerful, AI-driven code review CLI.')
-  .version('0.0.1')
+  .version('0.0.1');
+
+// Review command
+program.command('review')
+  .description('Perform an AI-enhanced code review.')
   .option('--path <path>', 'Path to a directory to scan')
   .option('--file <file>', 'Path to a single file to scan')
+  .option('--diff', 'Review files changed in the last commit')
   .option('--model <name>', `AI model to use (e.g., gpt-4o, gemini-1.5-pro-latest). Default: ${defaultModel}`, defaultModel)
   .option('--output <format>', 'Output format (markdown, json, inline). Default: markdown.')
   .option('--output-file <filename>', 'Save the markdown report to a file.')
@@ -31,7 +37,7 @@ program
   .option('--summary', 'Append an executive summary to the review')
   .option('--blame', 'Attribute code authorship via git blame')
   .option('--track', 'Save quality scores over time')
-  .action(reviewAction); // The main action is the review
+  .action(reviewAction);
 
 // Separate command for configuration
 program.command('configure')
@@ -64,31 +70,50 @@ async function reviewAction(options) {
   }
 
   const reviewPath = options.path || options.file;
-  if (!reviewPath) {
-    console.log(chalk.red('Error: The --path or --file option is required for a review.'));
-    console.log(`Example: ${chalk.cyan('lucai --path ./src')} or ${chalk.cyan('lucai --file src/main.js')}`);
+  if (!reviewPath && !options.diff) {
+    console.log(chalk.red('Error: A review target is required. Use --path, --file, or --diff.'));
+    console.log(`Example: ${chalk.cyan('lucai review --path ./src')} or ${chalk.cyan('lucai review --diff')}`);
     return;
   }
 
   const spinner = ora('Scanning files and preparing for review...').start();
+  let reviewResult;
   try {
-    const files = await getCodeContent(reviewPath);
+    let files;
+    if (options.diff) {
+      spinner.text = 'Getting changed files from git...';
+      files = await getChangedFiles();
+    } else {
+      files = await getCodeContent(reviewPath);
+    }
+
+    if (options.outputFile) {
+      const initialReport = generateMarkdownReport({ files: [] }, false, options.diff ? 'diff' : 'standard');
+      fs.writeFileSync(path.resolve(options.outputFile), initialReport);
+    }
+
     if (files.length === 0) {
-      spinner.warn('No supported files found in the specified path.');
+      spinner.warn('No supported files found to review.');
       return;
     }
-    spinner.text = 'The AI is reviewing your code. This may take a moment...';
+
+    const onProgress = (completed, total) => {
+      spinner.text = `The AI is reviewing your code... [${completed}/${total}]`;
+    };
+
+    spinner.text = 'The AI is reviewing your code...';
     const isSingleFile = !!options.file;
-    const reviewResult = await performReview(files, model, isSingleFile);
-    spinner.stop();
-    if (options.outputFile) {
-      const report = generateMarkdownReport(reviewResult);
-      const filePath = path.resolve(options.outputFile);
-      fs.writeFileSync(filePath, report);
-      spinner.succeed(`Review complete! Report saved to ${filePath}`);
-    } else {
+    reviewResult = await performReview(files, model, isSingleFile, !!options.diff, onProgress);
+    spinner.succeed('Review complete!');
+
+    if (options.diff) {
+      reviewResult.reviewType = 'diff';
+    }
+
+    if (!options.outputFile) {
       printMarkdownReport(reviewResult);
     }
+    
     if (options.track) {
       await addReview({
         path: reviewPath,
@@ -98,6 +123,13 @@ async function reviewAction(options) {
     }
   } catch (error) {
     spinner.fail(error.message);
+  } finally {
+    if (options.outputFile && reviewResult) {
+      const report = generateMarkdownReport(reviewResult);
+      const filePath = path.resolve(options.outputFile);
+      fs.writeFileSync(filePath, report);
+      console.log(chalk.green(`\n✅ Report saved to ${filePath}`));
+    }
   }
 }
 
@@ -152,31 +184,19 @@ function displayCustomHelp() {
   console.log(chalk.bold.underline('Description:'));
   console.log(chalk.gray('  A powerful, AI-driven code review CLI that provides deep, contextual feedback.\n'));
   console.log(chalk.bold.underline('Usage:'));
-  console.log('  lucai [options]\n');
-  console.log(chalk.bold.underline('Options:'));
-  const options = [
-    { opt: '--path <path>', desc: 'Path to a directory to scan.' },
-    { opt: '--file <file>', desc: 'Path to a single file to scan.' },
-    { opt: '--model <name>', desc: `AI model to use. Default: ${defaultModel}.` },
-    { opt: '--output <format>', desc: 'Output format (markdown, json, inline). Default: markdown.' },
-    { opt: '--output-file <filename>', desc: 'Save the markdown report to a file.' },
-    { opt: '--track', desc: 'Save quality scores to local history.' },
-    { opt: '--summary', desc: 'Append an executive summary to the review.' },
-    { opt: '--help', desc: 'Display help for command.' },
-  ];
-  options.forEach((o) => {
-    console.log(`  ${chalk.cyan(o.opt.padEnd(25))} ${chalk.gray(o.desc)}`);
-  });
-  console.log('');
+  console.log('  lucai <command> [options]\n');
   console.log(chalk.bold.underline('Commands:'));
   const commands = [
+    { cmd: 'review', desc: 'Perform an AI-enhanced code review.' },
     { cmd: 'configure', desc: 'Configure your AI provider and API key.' },
+    { cmd: 'help', desc: 'Display help for a command.' },
   ];
   commands.forEach((c) => {
-    console.log(`  ${chalk.cyan(c.cmd.padEnd(25))} ${chalk.gray(c.desc)}`);
+    console.log(`  ${chalk.cyan(c.cmd.padEnd(15))} ${chalk.gray(c.desc)}`);
   });
+  console.log('\nRun `lucai <command> --help` for more information on a specific command.');
   console.log('');
   console.log(chalk.gray('  Created by Glenn Allogho (glennfreelance365@gmail.com)'));
   console.log(chalk.gray('  LinkedIn: glenn-allogho-94649688 | Twitter: @glenn_all | Github: @allglenn'));
   console.log();
-} 
+}

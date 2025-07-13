@@ -70,6 +70,11 @@ lucai review --path ./src
 lucai review --file ./src/main.js
 ```
 
+**Review changed files in the last commit:**
+```sh
+lucai review --diff
+```
+
 **Review with a specific model:**
 ```sh
 lucai review --path ./src --model gemini-1.5-pro-latest
@@ -82,6 +87,11 @@ lucai review --path ./src --model gemini-1.5-pro-latest
 | `review`    | Perform an AI-enhanced code review on a directory or file.  |
 | `configure` | Configure your AI provider (OpenAI or Google) and API key. |
 | `help`      | Display the help guide.                                   |
+
+**Review Command Options:**
+- `--path <path>`: Path to a directory to scan.
+- `--file <file>`: Path to a single file to scan.
+- `--diff`: Review files changed in the last commit.
 
 For a full list of options for the `review` command, run:
 ```sh

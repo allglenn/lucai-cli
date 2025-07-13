@@ -1,0 +1,24 @@
+name: 'Lucai Code Review'
+description: 'Runs an AI-powered code review on your pull requests using lucai.'
+author: 'Glenn Allogho'
+
+inputs:
+  github-token:
+    description: 'The GitHub token to use for posting comments.'
+    required: true
+  
+  openai-api-key:
+    description: 'Your OpenAI API key.'
+    required: false
+
+  google-api-key:
+    description: 'Your Google API key.'
+    required: false
+
+runs:
+  using: 'node16'
+  main: 'index.js'
+
+branding:
+  icon: 'code'
+  color: 'blue' 

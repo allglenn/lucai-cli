@@ -100,7 +100,29 @@ lucai review --help
 
 ## Roadmap
 
-See the [Product Requirements Document](.cursor/lucai-review.prd.md) for the detailed roadmap.
+Our vision is to evolve `lucai` from a powerful review tool into a strategic partner in the development lifecycle.
+
+### ✅ v0.1: Core Review Engine
+- [x] AI-driven code analysis for single files and directories.
+- [x] Support for multiple AI providers (OpenAI, Google).
+- [x] Secure, local configuration for API keys.
+- [x] Automatic file chunking to handle large files.
+
+### ✅ v0.2: Git & CI/CD Integration
+- [x] Review files changed in the last commit (`--diff`).
+- [x] Correlate findings with code authors (`--blame`).
+- [x] Basic GitHub Action for automated PR reviews.
+
+### ⏳ v0.3: Advanced Output & Reporting
+- [ ] Multiple output formats (Markdown, JSON, inline).
+- [ ] Generate a consolidated report for multiple files.
+- [ ] Customize prompts for different review focuses.
+
+### 🚀 v0.4: Strategic Code Intelligence
+- **Automated Impact Analysis**: For a given PR, automatically identify other parts of the codebase that might be impacted but were not changed.
+- **Historical Context Analysis**: Flag changes in historically unstable or complex files, providing context from `git blame` and commit history.
+- **Intelligent Reviewer Suggestions**: Recommend primary and secondary reviewers for a PR based on who has the most recent and relevant context on the changed files.
+- **Codebase Health Dashboard**: A long-term vision to track code quality metrics, identify tech debt hotspots, and monitor architectural drift over time.
 
 ## Author
 

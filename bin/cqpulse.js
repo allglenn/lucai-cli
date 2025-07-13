@@ -9,7 +9,7 @@ const { setConfig, getApiKey, getConfig } = require('../lib/config');
 const { addReview } = require('../lib/database');
 const { performReview } = require('../lib/reviewer');
 const { getCodeContent } = require('../lib/scanner');
-const { getChangedFiles } = require('../lib/git');
+const { getChangedFiles, getBlameForFile } = require('../lib/git');
 const { printMarkdownReport, generateMarkdownReport } = require('../lib/markdownReport');
 const fs = require('fs');
 const path = require('path');
@@ -106,12 +106,48 @@ async function reviewAction(options) {
     reviewResult = await performReview(files, model, isSingleFile, !!options.diff, onProgress);
     spinner.succeed('Review complete!');
 
+    if (options.blame) {
+      spinner.start('Attributing authorship...');
+      for (const fileReview of reviewResult.files) {
+        const blameData = await getBlameForFile(fileReview.path);
+        if (blameData) {
+          const blameMap = new Map(blameData.lines.map(l => [l.line, l.author]));
+          const sections = ['dangers', 'issues', 'suggestions', 'fix'];
+          for (const section of sections) {
+            if (fileReview[section]) {
+              for (const item of fileReview[section]) {
+                if (item.line && blameMap.has(item.line)) {
+                  item.author = blameMap.get(item.line);
+                }
+              }
+            }
+          }
+        }
+      }
+      spinner.succeed('Authorship attributed.');
+    }
+
     if (options.diff) {
       reviewResult.reviewType = 'diff';
     }
 
-    if (!options.outputFile) {
-      printMarkdownReport(reviewResult);
+    if (options.output === 'json') {
+      const jsonReport = JSON.stringify(reviewResult, null, 2);
+      if (options.outputFile) {
+        fs.writeFileSync(path.resolve(options.outputFile), jsonReport);
+        console.log(chalk.green(`\n✅ JSON report saved to ${options.outputFile}`));
+      } else {
+        console.log(jsonReport);
+      }
+    } else { // Default to markdown
+      if (options.outputFile) {
+        const report = generateMarkdownReport(reviewResult);
+        const filePath = path.resolve(options.outputFile);
+        fs.writeFileSync(filePath, report);
+        console.log(chalk.green(`\n✅ Report saved to ${filePath}`));
+      } else {
+        printMarkdownReport(reviewResult);
+      }
     }
     
     if (options.track) {

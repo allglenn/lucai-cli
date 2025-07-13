@@ -143,11 +143,11 @@ Our vision is to evolve `lucai` from a powerful review tool into a strategic par
 - [ ] Generate a consolidated report for multiple files.
 - [ ] Customize prompts for different review focuses.
 
-### 🚀 v0.4: Strategic Code Intelligence
-- **Automated Impact Analysis**: For a given PR, automatically identify other parts of the codebase that might be impacted but were not changed.
-- **Historical Context Analysis**: Flag changes in historically unstable or complex files, providing context from `git blame` and commit history.
-- **Intelligent Reviewer Suggestions**: Recommend primary and secondary reviewers for a PR based on who has the most recent and relevant context on the changed files.
-- **Codebase Health Dashboard**: A long-term vision to track code quality metrics, identify tech debt hotspots, and monitor architectural drift over time.
+### 🚀 v0.4: Accelerated Git Workflow
+- **Pre-Commit Review Hook**: Install a Git hook (`lucai install-hook`) that automatically reviews staged files before every commit. The commit is blocked if the code quality is below a configurable threshold, providing instant feedback.
+- **Intelligent PR Routing**: The GitHub Action will analyze the PR's changed files and automatically suggest the best reviewers (e.g., via an `@mention` comment) based on git blame history.
+- **Targeted Commit Review**: A new `lucai review --commit <commit-hash>` command to analyze any specific commit from the project's history, perfect for auditing hotfixes or investigating bugs.
+- **Work-In-Progress Review**: A `lucai review --staged` command to provide a fast review of only the files currently staged for commit, allowing for rapid, iterative feedback.
 
 ### 🌌 v0.5: Autonomous Development Partner
 - **AI-Powered Autofix**: Go beyond suggesting fixes by automatically generating and applying patches for safe refactorings (`lucai review --apply-fixes`). For PRs, the GitHub Action can commit these fixes directly to the branch for approval.

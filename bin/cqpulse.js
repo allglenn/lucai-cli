@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+// Polyfill for fetch
+global.fetch = require('node-fetch');
+
 const { Command } = require('commander');
 const chalk = require('chalk');
 const inquirer = require('inquirer');

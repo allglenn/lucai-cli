@@ -1,3 +1,6 @@
+// Polyfill for fetch
+global.fetch = require('node-fetch');
+
 const core = require('@actions/core');
 const github = require('@actions/github');
 const { execSync } = require('child_process');

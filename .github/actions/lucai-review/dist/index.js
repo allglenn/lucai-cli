@@ -24673,7 +24673,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 396:
+/***/ 8015:
 /***/ ((module) => {
 
 "use strict";
@@ -25441,7 +25441,7 @@ const {
   kLastProgressEventFired
 } = __nccwpck_require__(6812)
 const { ProgressEvent } = __nccwpck_require__(5976)
-const { getEncoding } = __nccwpck_require__(396)
+const { getEncoding } = __nccwpck_require__(8015)
 const { DOMException } = __nccwpck_require__(7326)
 const { serializeAMimeType, parseMIMEType } = __nccwpck_require__(4322)
 const { types } = __nccwpck_require__(9023)
@@ -35351,7 +35351,7 @@ module.exports = {
 // We support Browserify by skipping automatic module discovery and requiring modules directly.
 var modules = [
     __nccwpck_require__(7799),
-    __nccwpck_require__(8015),
+    __nccwpck_require__(396),
     __nccwpck_require__(2402),
     __nccwpck_require__(3152),
     __nccwpck_require__(6146),
@@ -36508,7 +36508,7 @@ function detectEncoding(bufs, defaultEncoding) {
 
 /***/ }),
 
-/***/ 8015:
+/***/ 396:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -39752,6 +39752,9 @@ module.exports = /*#__PURE__*/JSON.parse('[["0","\\u0000",128],["a1","｡",62],[
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
+// Polyfill for fetch
+global.fetch = __nccwpck_require__(6705);
+
 const core = __nccwpck_require__(7484);
 const github = __nccwpck_require__(3228);
 const { execSync } = __nccwpck_require__(5317);

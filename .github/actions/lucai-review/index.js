@@ -9,15 +9,15 @@ async function run() {
     const openaiApiKey = core.getInput('openai-api-key');
     const googleApiKey = core.getInput('google-api-key');
 
-    let provider = '';
+    let modelName = '';
     if (openaiApiKey) {
-      provider = 'openai';
+      modelName = 'gpt-4o'; // Default OpenAI model
       core.exportVariable('OPENAI_API_KEY', openaiApiKey);
-      core.info('Using OpenAI provider.');
+      core.info('Using OpenAI provider with model gpt-4o.');
     } else if (googleApiKey) {
-      provider = 'google';
+      modelName = 'gemini-1.5-pro-latest'; // Default Google model
       core.exportVariable('GOOGLE_API_KEY', googleApiKey);
-      core.info('Using Google provider.');
+      core.info('Using Google provider with model gemini-1.5-pro-latest.');
     } else {
       core.setFailed('No API key provided. Please provide either `openai-api-key` or `google-api-key` as an input to the action.');
       return;
@@ -39,7 +39,7 @@ async function run() {
     core.info('Linking lucai CLI...');
     execSync('npm link'); // Ensure lucai is available
     core.info('Running lucai review...');
-    const command = `lucai review --diff --output json --provider ${provider}`;
+    const command = `lucai review --diff --output json --model ${modelName}`;
     core.info(`Executing: ${command}`);
     const reviewOutput = execSync(command).toString();
     const reviewResult = JSON.parse(reviewOutput);

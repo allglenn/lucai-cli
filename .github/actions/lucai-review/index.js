@@ -28,7 +28,11 @@ async function run() {
     }
     
     // Configure and run lucai
+    core.info('Installing lucai dependencies...');
+    execSync('npm install');
+    core.info('Linking lucai CLI...');
     execSync('npm link'); // Ensure lucai is available
+    core.info('Running lucai review...');
     const reviewOutput = execSync('lucai review --diff --output json').toString();
     const reviewResult = JSON.parse(reviewOutput);
 

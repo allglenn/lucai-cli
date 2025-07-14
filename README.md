@@ -101,20 +101,6 @@ For a full list of options for the `review` command, run:
 lucai review --help
 ```
 
-## Roadmap
-
-Our vision is to evolve `lucai` from a powerful review tool into a strategic partner in the development lifecycle.
-
-### ✅ v0.1: Core Review Engine
-- [x] AI-driven code analysis for single files and directories.
-- [x] Support for multiple AI providers (OpenAI, Google).
-- [x] Secure, local configuration for API keys.
-- [x] Automatic file chunking to handle large files.
-
-### ✅ v0.2: Git & CI/CD Integration
-- [x] Review files changed in the last commit (`--diff`).
-- [x] Correlate findings with code authors (`--blame`).
-- [x] Basic GitHub Action for automated PR reviews.
 
 ## Author
 

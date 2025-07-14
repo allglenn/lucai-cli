@@ -1,7 +1,7 @@
 {
-  "name": "lucai-cl",
+  "name": "lucai-cli",
   "version": "1.0.0",
-  "description": "A powerful, AI-driven code review CLI.",
+  "description": "A powerful, AI-driven code review CLI that provides deep, contextual feedback using GPT-4o and Gemini 1.5 Pro.",
   "main": "lib/reviewer.js",
   "bin": {
     "lucai": "bin/lucai.js"
@@ -12,9 +12,31 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "code-review",
+    "ai",
+    "gpt-4",
+    "gemini",
+    "cli",
+    "code-quality",
+    "static-analysis",
+    "github-actions",
+    "automation",
+    "developer-tools"
+  ],
+  "author": "Glenn Allogho <glennfreelance365@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/allglenn/lucai-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/allglenn/lucai-cli/issues"
+  },
+  "homepage": "https://github.com/allglenn/lucai-cli#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "dependencies": {
     "@google/generative-ai": "^0.15.0",
     "chalk": "^4.1.2",

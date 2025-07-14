@@ -1,0 +1,12 @@
+.github/
+.cursor/
+.git/
+.gitignore
+README.md
+how-i-automated-code-reviews.md
+*.log
+node_modules/
+.DS_Store
+*.tgz
+package.json.backup
+review-report.md

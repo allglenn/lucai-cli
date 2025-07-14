@@ -12,29 +12,33 @@ jobs:
   review:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout PR HEAD
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: head
 
-      - name: Fetch base branch
-        run: |
-          git fetch origin ${{ github.base_ref }}:${{ github.base_ref }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Checkout PR BASE
+        uses: actions/checkout@v3
         with:
-          node-version: "16"
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: base
 
       - name: Install lucai-cli from npm
-        run: npm install -g lucai-cli
+        run: npm install -g lucai-cli@1.1.0
+
+      - name: Compute Diff
+        run: |
+          diff -u base/ head/ > diff.txt
 
       - name: Run Lucai Code Review
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: |
-          lucai review --diff --output markdown --model gemini-1.5-pro-latest > lucai-review.md
+          lucai review --diff < diff.txt --dir ./src --output markdown --model gemini-1.5-pro-latest > lucai-review.md
 
       - name: Post Lucai Review as PR Comment
         uses: peter-evans/create-or-update-comment@v4

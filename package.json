@@ -44,6 +44,7 @@
     "figlet": "^1.8.2",
     "inquirer": "^8.2.6",
     "js-tiktoken": "^1.0.20",
+    "minimatch": "^9.0.1",
     "node-fetch": "^2.7.0",
     "openai": "^5.9.0",
     "ora": "^5.4.1",

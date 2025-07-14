@@ -1,0 +1,21 @@
+# Lucai Ignore File
+# Add files and patterns to ignore during code review.
+# Supports glob patterns like .gitignore.
+
+# Ignore common config files
+*.yml
+*.yaml
+*.json
+
+# Ignore markdown and documentation
+*.md
+LICENSE
+
+# Ignore lock files
+package-lock.json
+yarn.lock
+
+# Ignore dotfiles
+.DS_Store
+.env*
+.vscode/ 

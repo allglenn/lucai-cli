@@ -70,7 +70,7 @@ jobs:
           echo "Current directory: $(pwd)"
           echo "Available files:"
           find . -type f -name "*.js" -o -name "*.ts" -o -name "*.py" -o -name "*.rb" -o -name "*.go" -o -name "*.java" -o -name "*.cs" | head -10
-          
+
           # Try to run lucai on the current directory if src doesn't exist
           if [ -d "./src" ]; then
             echo "Running lucai on ./src directory"
@@ -79,29 +79,27 @@ jobs:
             echo "src directory not found, running lucai on current directory"
             lucai review --path . --output markdown --model gemini-1.5-pro-latest > ../lucai-review.md
           fi
-          
+
           cd ..
           echo "Lucai review completed. File size: $(wc -l < lucai-review.md || echo 0) lines"
           echo "First few lines of review:"
           head -10 lucai-review.md || echo "File is empty or doesn't exist"
-          
+
           # Create a fallback review if the file is empty
           if [ ! -s lucai-review.md ]; then
             echo "Creating fallback review message"
-            cat > lucai-review.md << 'EOF'
-# Code Review Report
-
-## 📊 Overall Quality Score: N/A
-
-## 📝 Executive Summary
-
-No files were found to review in this pull request. This could be because:
-- The changes are in files not supported by lucai (currently supports: .js, .jsx, .ts, .tsx, .py, .rb, .go, .java, .cs)
-- The files are in a different directory structure than expected
-- No code files were modified in this PR
-
-Please ensure your changes include supported file types for AI code review.
-EOF
+            echo "# Code Review Report" > lucai-review.md
+            echo "" >> lucai-review.md
+            echo "## 📊 Overall Quality Score: N/A" >> lucai-review.md
+            echo "" >> lucai-review.md
+            echo "## 📝 Executive Summary" >> lucai-review.md
+            echo "" >> lucai-review.md
+            echo "No files were found to review in this pull request. This could be because:" >> lucai-review.md
+            echo "- The changes are in files not supported by lucai (currently supports: .js, .jsx, .ts, .tsx, .py, .rb, .go, .java, .cs)" >> lucai-review.md
+            echo "- The files are in a different directory structure than expected" >> lucai-review.md
+            echo "- No code files were modified in this PR" >> lucai-review.md
+            echo "" >> lucai-review.md
+            echo "Please ensure your changes include supported file types for AI code review." >> lucai-review.md
           fi
 
       - name: Post Lucai Review as PR Comment

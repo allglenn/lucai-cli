@@ -116,17 +116,6 @@ Our vision is to evolve `lucai` from a powerful review tool into a strategic par
 - [x] Correlate findings with code authors (`--blame`).
 - [x] Basic GitHub Action for automated PR reviews.
 
-### ⏳ v0.3: Advanced Output & Reporting
-- [ ] Multiple output formats (Markdown, JSON, inline).
-- [ ] Generate a consolidated report for multiple files.
-- [ ] Customize prompts for different review focuses.
-
-### 🚀 v0.4: Strategic Code Intelligence
-- **Automated Impact Analysis**: For a given PR, automatically identify other parts of the codebase that might be impacted but were not changed.
-- **Historical Context Analysis**: Flag changes in historically unstable or complex files, providing context from `git blame` and commit history.
-- **Intelligent Reviewer Suggestions**: Recommend primary and secondary reviewers for a PR based on who has the most recent and relevant context on the changed files.
-- **Codebase Health Dashboard**: A long-term vision to track code quality metrics, identify tech debt hotspots, and monitor architectural drift over time.
-
 ## Author
 
 Created by **Glenn Allogho**

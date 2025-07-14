@@ -20,3 +20,4 @@ lerna-debug.log*
 .cursor/
 
 review-report.md
+.cursor/

@@ -36,6 +36,15 @@ jobs:
           echo "Head directory contents:"
           ls -la head/ || echo "Head directory not found"
 
+      - name: Debug src directory structure
+        run: |
+          echo "Checking if src directory exists in head:"
+          ls -la head/src/ || echo "src directory not found in head"
+          echo "Checking if src directory exists in base:"
+          ls -la base/src/ || echo "src directory not found in base"
+          echo "Full head directory tree:"
+          find head/ -type f -name "*.js" -o -name "*.ts" -o -name "*.py" -o -name "*.rb" -o -name "*.go" -o -name "*.java" -o -name "*.cs" | head -20 || echo "No supported files found"
+
       - name: Compute Diff
         run: |
           set +e  # Don't exit on error
@@ -58,11 +67,42 @@ jobs:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: |
           cd head
-          lucai review --path ./src --output markdown --model gemini-1.5-pro-latest > ../lucai-review.md
+          echo "Current directory: $(pwd)"
+          echo "Available files:"
+          find . -type f -name "*.js" -o -name "*.ts" -o -name "*.py" -o -name "*.rb" -o -name "*.go" -o -name "*.java" -o -name "*.cs" | head -10
+          
+          # Try to run lucai on the current directory if src doesn't exist
+          if [ -d "./src" ]; then
+            echo "Running lucai on ./src directory"
+            lucai review --path ./src --output markdown --model gemini-1.5-pro-latest > ../lucai-review.md
+          else
+            echo "src directory not found, running lucai on current directory"
+            lucai review --path . --output markdown --model gemini-1.5-pro-latest > ../lucai-review.md
+          fi
+          
           cd ..
           echo "Lucai review completed. File size: $(wc -l < lucai-review.md || echo 0) lines"
           echo "First few lines of review:"
           head -10 lucai-review.md || echo "File is empty or doesn't exist"
+          
+          # Create a fallback review if the file is empty
+          if [ ! -s lucai-review.md ]; then
+            echo "Creating fallback review message"
+            cat > lucai-review.md << 'EOF'
+# Code Review Report
+
+## 📊 Overall Quality Score: N/A
+
+## 📝 Executive Summary
+
+No files were found to review in this pull request. This could be because:
+- The changes are in files not supported by lucai (currently supports: .js, .jsx, .ts, .tsx, .py, .rb, .go, .java, .cs)
+- The files are in a different directory structure than expected
+- No code files were modified in this PR
+
+Please ensure your changes include supported file types for AI code review.
+EOF
+          fi
 
       - name: Post Lucai Review as PR Comment
         uses: peter-evans/create-or-update-comment@v4

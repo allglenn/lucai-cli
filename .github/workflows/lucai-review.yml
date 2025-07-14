@@ -57,7 +57,9 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: |
-          lucai review --diff < diff.txt --path ./src --output markdown --model gemini-1.5-pro-latest > lucai-review.md
+          cd head
+          lucai review --path ./src --output markdown --model gemini-1.5-pro-latest > ../lucai-review.md
+          cd ..
           echo "Lucai review completed. File size: $(wc -l < lucai-review.md || echo 0) lines"
           echo "First few lines of review:"
           head -10 lucai-review.md || echo "File is empty or doesn't exist"

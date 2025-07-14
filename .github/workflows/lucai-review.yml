@@ -34,4 +34,11 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: |
-          lucai review --diff --output markdown --model gemini-1.5-pro-latest
+          lucai review --diff --output markdown --model gemini-1.5-pro-latest > lucai-review.md
+
+      - name: Post Lucai Review as PR Comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body-file: lucai-review.md

@@ -29,9 +29,28 @@ jobs:
       - name: Install lucai-cli from npm
         run: npm install -g lucai-cli@1.1.0
 
+      - name: Debug checkout directories
+        run: |
+          echo "Base directory contents:"
+          ls -la base/ || echo "Base directory not found"
+          echo "Head directory contents:"
+          ls -la head/ || echo "Head directory not found"
+
       - name: Compute Diff
         run: |
+          set +e  # Don't exit on error
           diff -u base/ head/ > diff.txt
+          DIFF_EXIT_CODE=$?
+          echo "Diff completed with exit code: $DIFF_EXIT_CODE"
+          if [ $DIFF_EXIT_CODE -eq 1 ]; then
+            echo "Differences found (this is expected for code reviews)"
+          elif [ $DIFF_EXIT_CODE -eq 0 ]; then
+            echo "No differences found"
+          else
+            echo "Diff command failed with unexpected exit code: $DIFF_EXIT_CODE"
+            exit $DIFF_EXIT_CODE
+          fi
+          echo "Diff file size: $(wc -l < diff.txt || echo 0) lines"
 
       - name: Run Lucai Code Review
         env:

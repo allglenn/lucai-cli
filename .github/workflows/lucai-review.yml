@@ -57,7 +57,7 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: |
-          lucai review --diff < diff.txt --dir ./src --output markdown --model gemini-1.5-pro-latest > lucai-review.md
+          lucai review --diff < diff.txt --path ./src --output markdown --model gemini-1.5-pro-latest > lucai-review.md
 
       - name: Post Lucai Review as PR Comment
         uses: peter-evans/create-or-update-comment@v4

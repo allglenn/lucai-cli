@@ -1,8 +1,8 @@
-name: 'Lucai Code Review'
+name: "Lucai Code Review"
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 permissions:
   contents: read
@@ -12,23 +12,99 @@ jobs:
   review:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout PR HEAD
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: head
 
-      - name: Fetch base branch
-        run: |
-          git fetch origin ${{ github.base_ref }}:${{ github.base_ref }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Checkout PR BASE
+        uses: actions/checkout@v3
         with:
-          node-version: '16'
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: base
+
+      - name: Install lucai-cli from npm
+        run: npm install -g lucai-cli@1.1.1
+
+      - name: Debug checkout directories
+        run: |
+          echo "Base directory contents:"
+          ls -la base/ || echo "Base directory not found"
+          echo "Head directory contents:"
+          ls -la head/ || echo "Head directory not found"
+
+      - name: Debug src directory structure
+        run: |
+          echo "Checking if src directory exists in head:"
+          ls -la head/src/ || echo "src directory not found in head"
+          echo "Checking if src directory exists in base:"
+          ls -la base/src/ || echo "src directory not found in base"
+          echo "Full head directory tree:"
+          find head/ -type f -name "*.js" -o -name "*.ts" -o -name "*.py" -o -name "*.rb" -o -name "*.go" -o -name "*.java" -o -name "*.cs" | head -20 || echo "No supported files found"
+
+      - name: Compute Diff
+        run: |
+          set +e  # Don't exit on error
+          diff -u base/ head/ > diff.txt
+          DIFF_EXIT_CODE=$?
+          echo "Diff completed with exit code: $DIFF_EXIT_CODE"
+          if [ $DIFF_EXIT_CODE -eq 1 ]; then
+            echo "Differences found (this is expected for code reviews)"
+          elif [ $DIFF_EXIT_CODE -eq 0 ]; then
+            echo "No differences found"
+          else
+            echo "Diff command failed with unexpected exit code: $DIFF_EXIT_CODE"
+            exit $DIFF_EXIT_CODE
+          fi
+          echo "Diff file size: $(wc -l < diff.txt || echo 0) lines"
 
       - name: Run Lucai Code Review
-        uses: ./.github/actions/lucai-review
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: |
+          cd head
+          echo "Current directory: $(pwd)"
+          echo "Available files:"
+          find . -type f -name "*.js" -o -name "*.ts" -o -name "*.py" -o -name "*.rb" -o -name "*.go" -o -name "*.java" -o -name "*.cs" | head -10
+
+          # Try to run lucai on the current directory if src doesn't exist
+          if [ -d "./src" ]; then
+            echo "Running lucai on ./src directory"
+            lucai review --path ./src --output markdown --model gemini-1.5-pro-latest > ../lucai-review.md
+          else
+            echo "src directory not found, running lucai on current directory"
+            lucai review --path . --output markdown --model gemini-1.5-pro-latest > ../lucai-review.md
+          fi
+
+          cd ..
+          echo "Lucai review completed. File size: $(wc -l < lucai-review.md || echo 0) lines"
+          echo "First few lines of review:"
+          head -10 lucai-review.md || echo "File is empty or doesn't exist"
+
+          # Create a fallback review if the file is empty
+          if [ ! -s lucai-review.md ]; then
+            echo "Creating fallback review message"
+            echo "# Code Review Report" > lucai-review.md
+            echo "" >> lucai-review.md
+            echo "## 📊 Overall Quality Score: N/A" >> lucai-review.md
+            echo "" >> lucai-review.md
+            echo "## 📝 Executive Summary" >> lucai-review.md
+            echo "" >> lucai-review.md
+            echo "No files were found to review in this pull request. This could be because:" >> lucai-review.md
+            echo "- The changes are in files not supported by lucai (currently supports: .js, .jsx, .ts, .tsx, .py, .rb, .go, .java, .cs)" >> lucai-review.md
+            echo "- The files are in a different directory structure than expected" >> lucai-review.md
+            echo "- No code files were modified in this PR" >> lucai-review.md
+            echo "" >> lucai-review.md
+            echo "Please ensure your changes include supported file types for AI code review." >> lucai-review.md
+          fi
+
+      - name: Post Lucai Review as PR Comment
+        uses: peter-evans/create-or-update-comment@v4
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
-          google-api-key: ${{ secrets.GOOGLE_API_KEY }} 
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body-path: lucai-review.md

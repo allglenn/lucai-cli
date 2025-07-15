@@ -32,7 +32,7 @@ When `lucai` encounters a file that is too large for the selected AI model's con
 
     *   **From Source:**
         ```sh
-        git clone https://github.com/your-username/lucai.git
+        git clone https://github.com/allglenn/lucai.git
         cd lucai
         npm install
         npm link

@@ -27,7 +27,7 @@ jobs:
           path: base
 
       - name: Install lucai-cli from npm
-        run: npm install -g lucai-cli@1.1.1
+        run: npm install -g lucai-cli@1.1.2
 
       - name: Debug checkout directories
         run: |

@@ -13,6 +13,7 @@ const inquirer = require('inquirer');
 const figlet = require('figlet');
 const ora = require('ora');
 const { setConfig, getApiKey, getConfig } = require('../lib/config');
+const { loadProjectConfig } = require('../lib/projectConfig');
 const { addReview } = require('../lib/database');
 const { performReview } = require('../lib/reviewer');
 const { getCodeContent } = require('../lib/scanner');
@@ -44,6 +45,7 @@ program.command('review')
   .option('--summary', 'Append an executive summary to the review')
   .option('--blame', 'Attribute code authorship via git blame')
   .option('--track', 'Save quality scores over time')
+  .option('--profile <name>', 'Run a review with a specific profile from your .lucai.json')
   .action(reviewAction);
 
 // Separate command for configuration
@@ -66,7 +68,10 @@ if (process.argv.length <= 2) {
 // --- Action Handlers ---
 
 async function reviewAction(options) {
-  const model = options.model;
+  const projectConfig = loadProjectConfig();
+  const mergedOptions = { ...projectConfig, ...options };
+
+  const model = mergedOptions.model;
   const provider = model.startsWith('gemini') ? 'google' : 'openai';
   const apiKey = getApiKey(provider);
 
@@ -76,8 +81,8 @@ async function reviewAction(options) {
     return;
   }
 
-  const reviewPath = options.path || options.file;
-  if (!reviewPath && !options.diff) {
+  const reviewPath = mergedOptions.path || mergedOptions.file;
+  if (!reviewPath && !mergedOptions.diff) {
     console.log(chalk.red('Error: A review target is required. Use --path, --file, or --diff.'));
     console.log(`Example: ${chalk.cyan('lucai review --path ./src')} or ${chalk.cyan('lucai review --diff')}`);
     return;
@@ -87,16 +92,16 @@ async function reviewAction(options) {
   let reviewResult;
   try {
     let files;
-    if (options.diff) {
+    if (mergedOptions.diff) {
       spinner.text = 'Getting changed files from git...';
       files = await getChangedFiles();
     } else {
       files = await getCodeContent(reviewPath);
     }
 
-    if (options.outputFile) {
-      const initialReport = generateMarkdownReport({ files: [] }, false, options.diff ? 'diff' : 'standard');
-      fs.writeFileSync(path.resolve(options.outputFile), initialReport);
+    if (mergedOptions.outputFile) {
+      const initialReport = generateMarkdownReport({ files: [] }, false, mergedOptions.diff ? 'diff' : 'standard');
+      fs.writeFileSync(path.resolve(mergedOptions.outputFile), initialReport);
     }
 
     if (files.length === 0) {
@@ -109,11 +114,11 @@ async function reviewAction(options) {
     };
 
     spinner.text = 'The AI is reviewing your code...';
-    const isSingleFile = !!options.file;
-    reviewResult = await performReview(files, model, isSingleFile, !!options.diff, onProgress);
+    const isSingleFile = !!mergedOptions.file;
+    reviewResult = await performReview(files, model, isSingleFile, !!mergedOptions.diff, onProgress, mergedOptions);
     spinner.succeed('Review complete!');
 
-    if (options.blame) {
+    if (mergedOptions.blame) {
       spinner.start('Attributing authorship...');
       for (const fileReview of reviewResult.files) {
         const blameData = await getBlameForFile(fileReview.path);
@@ -134,22 +139,22 @@ async function reviewAction(options) {
       spinner.succeed('Authorship attributed.');
     }
 
-    if (options.diff) {
+    if (mergedOptions.diff) {
       reviewResult.reviewType = 'diff';
     }
 
-    if (options.output === 'json') {
+    if (mergedOptions.output === 'json') {
       const jsonReport = JSON.stringify(reviewResult, null, 2);
-      if (options.outputFile) {
-        fs.writeFileSync(path.resolve(options.outputFile), jsonReport);
-        console.log(chalk.green(`\n✅ JSON report saved to ${options.outputFile}`));
+      if (mergedOptions.outputFile) {
+        fs.writeFileSync(path.resolve(mergedOptions.outputFile), jsonReport);
+        console.log(chalk.green(`\n✅ JSON report saved to ${mergedOptions.outputFile}`));
       } else {
         console.log(jsonReport);
       }
     } else { // Default to markdown
-      if (options.outputFile) {
+      if (mergedOptions.outputFile) {
         const report = generateMarkdownReport(reviewResult);
-        const filePath = path.resolve(options.outputFile);
+        const filePath = path.resolve(mergedOptions.outputFile);
         fs.writeFileSync(filePath, report);
         console.log(chalk.green(`\n✅ Report saved to ${filePath}`));
       } else {
@@ -157,7 +162,7 @@ async function reviewAction(options) {
       }
     }
     
-    if (options.track) {
+    if (mergedOptions.track) {
       await addReview({
         path: reviewPath,
         score: reviewResult.score,
@@ -167,9 +172,9 @@ async function reviewAction(options) {
   } catch (error) {
     spinner.fail(error.message);
   } finally {
-    if (options.outputFile && reviewResult) {
+    if (mergedOptions.outputFile && reviewResult) {
       const report = generateMarkdownReport(reviewResult);
-      const filePath = path.resolve(options.outputFile);
+      const filePath = path.resolve(mergedOptions.outputFile);
       fs.writeFileSync(filePath, report);
       console.log(chalk.green(`\n✅ Report saved to ${filePath}`));
     }

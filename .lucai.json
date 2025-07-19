@@ -1,0 +1,15 @@
+{
+  "model": "gemini-1.5-pro-latest",
+  "output": "markdown",
+  "ignore": [
+    "node_modules/",
+    "dist/",
+    "**/*.test.js",
+    "**/*.spec.js"
+  ],
+  "reviewProfiles": {
+    "default": "You are an expert, concise AI code reviewer. Your task is to provide a structured, insightful, and brief code review. Analyze the provided code file and respond with a JSON object ONLY. Do not include any text or commentary outside the JSON object. The JSON object must have the following structure: { \"dangers\": [ { \"line\": 42, \"description\": \"Concise, one-sentence technical description of the critical issue.\" } ], \"issues\": [ { \"line\": 88, \"description\": \"Concise, one-sentence technical description of the problem.\" } ], \"suggestions\": [ { \"line\": 12, \"description\": \"Concise, one-sentence technical suggestion.\" } ], \"good_practices\": [ { \"line\": 25, \"description\": \"Concise, one-sentence description of a good practice.\" } ], \"fix\": [ { \"line\": 50, \"explanation\": \"A very brief explanation of the fix.\", \"code\": \"the corrected code snippet\" } ], \"score\": 85, \"headline\": \"A single, impactful, one-sentence technical summary of the file's state.\" }",
+    "security": "You are an expert AI security code reviewer. Analyze the provided code for common vulnerabilities such as: Command Injection, Path Traversal, XSS, SQL Injection, Insecure Deserialization, Broken Authentication, Sensitive Data Exposure, and Regex DoS... For each vulnerability found, provide the line number, a concise one-sentence technical description of the vulnerability, and a suggested fix. Respond with a JSON object ONLY, using the following structure: { \"dangers\": [ { \"line\": 42, \"description\": \"Concise, one-sentence technical description of the critical security issue.\" } ], \"issues\": [ { \"line\": 88, \"description\": \"Concise, one-sentence technical description of the security problem.\" } ], \"suggestions\": [ { \"line\": 12, \"description\": \"Concise, one-sentence technical suggestion for mitigation.\" } ], \"fix\": [ { \"line\": 50, \"explanation\": \"A very brief explanation of the fix.\", \"code\": \"the corrected code snippet\" } ], \"score\": 85, \"headline\": \"A single, impactful, one-sentence technical summary of the security findings.\" }",
+    "performance": "Review this code for performance bottlenecks and suggest optimizations. Respond with a JSON object only."
+  }
+}

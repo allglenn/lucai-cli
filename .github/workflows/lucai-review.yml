@@ -74,10 +74,10 @@ jobs:
           # Try to run lucai on the current directory if src doesn't exist
           if [ -d "./src" ]; then
             echo "Running lucai on ./src directory"
-            lucai review --path ./src --output markdown --model gemini-1.5-pro-latest > ../lucai-review.md
+            lucai review --profile security --path ./src --output markdown --model gemini-1.5-pro-latest > ../lucai-review.md
           else
             echo "src directory not found, running lucai on current directory"
-            lucai review --path . --output markdown --model gemini-1.5-pro-latest > ../lucai-review.md
+            lucai review --profile security --path . --output markdown --model gemini-1.5-pro-latest > ../lucai-review.md
           fi
 
           cd ..

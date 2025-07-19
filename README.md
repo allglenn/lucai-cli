@@ -15,6 +15,7 @@ A powerful, AI-driven code review CLI that goes beyond static analysis to provid
 - **Flexible Analysis**: Review entire directories, single files, or git diffs.
 - **Multiple Output Formats**: Choose from markdown, JSON, or inline comments.
 - **Customizable**: Use different AI models and custom prompts.
+- **Project-Level Configuration**: Define project-specific settings in a `.lucai.json` file for consistent reviews.
 
 ## Handling Large Files
 
@@ -83,6 +84,44 @@ lucai review --diff
 lucai review --path ./src --model gemini-1.5-pro-latest
 ```
 
+**Review with a specific profile:**
+```sh
+lucai review --profile security
+```
+
+### Project-Level Configuration
+
+You can configure `lucai` on a per-project basis by creating a `.lucai.json` file in your project's root directory. This file allows you to define default options and create custom review profiles.
+
+**Example `.lucai.json`:**
+```json
+{
+  "model": "gemini-1.5-pro-latest",
+  "output": "markdown",
+  "ignore": [
+    "dist/",
+    "**/*.test.js"
+  ],
+  "reviewProfiles": {
+    "default": "Analyze this code for architectural soundness, developer ergonomics, and strategic design flaws.",
+    "security": "Analyze this code strictly for potential security vulnerabilities, such as injection flaws, broken authentication, and sensitive data exposure. Do not comment on style.",
+    "performance": "Review this code for performance bottlenecks and suggest optimizations."
+  }
+}
+```
+
+When you run `lucai review`, the options in this file will be used as defaults. You can override them with command-line flags.
+
+To use a specific review profile, use the `--profile` option:
+```sh
+lucai review --profile security --path ./src
+```
+
+To output the result to a markdown file:
+```sh
+bin/lucai.js review --profile security --path ./bin --output markdown --output-file security_review.md
+```
+
 ### Commands
 
 | Command     | Description                                               |
@@ -95,6 +134,7 @@ lucai review --path ./src --model gemini-1.5-pro-latest
 - `--path <path>`: Path to a directory to scan.
 - `--file <file>`: Path to a single file to scan.
 - `--diff`: Review files changed in the last commit.
+- `--profile <name>`: Run a review with a specific profile from your `.lucai.json`.
 
 For a full list of options for the `review` command, run:
 ```sh

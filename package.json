@@ -1,6 +1,6 @@
 {
   "name": "lucai-cli",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "A powerful, AI-driven code review CLI that provides deep, contextual feedback using GPT-4o and Gemini 1.5 Pro.",
   "main": "lib/reviewer.js",
   "bin": {

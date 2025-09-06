@@ -43,7 +43,7 @@ jobs:
           echo "Checking if src directory exists in base:"
           ls -la base/src/ || echo "src directory not found in base"
           echo "Full head directory tree:"
-          find head/ -type f -name "*.js" -o -name "*.ts" -o -name "*.py" -o -name "*.rb" -o -name "*.go" -o -name "*.java" -o -name "*.cs" | head -20 || echo "No supported files found"
+          find head/ -type f -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" -o -name "*.py" -o -name "*.rb" -o -name "*.go" -o -name "*.java" -o -name "*.cs" -o -name "*.php" -o -name "*.swift" -o -name "*.kt" -o -name "*.scala" -o -name "*.rs" -o -name "*.cpp" -o -name "*.c" -o -name "*.h" -o -name "*.hpp" -o -name "*.vue" -o -name "*.svelte" -o -name "*.r" -o -name "*.m" -o -name "*.mm" -o -name "*.sh" -o -name "*.zsh" -o -name "*.fish" -o -name "*.ps1" -o -name "*.bat" -o -name "*.cmd" | head -20 || echo "No supported files found"
 
       - name: Compute Diff
         run: |
@@ -66,10 +66,14 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: |
+          # Record start time
+          START_TIME=$(date +%s)
+          echo "🚀 Starting Lucai code review at $(date)"
+
           cd head
           echo "Current directory: $(pwd)"
           echo "Available files:"
-          find . -type f -name "*.js" -o -name "*.ts" -o -name "*.py" -o -name "*.rb" -o -name "*.go" -o -name "*.java" -o -name "*.cs" | head -10
+          find . -type f -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" -o -name "*.py" -o -name "*.rb" -o -name "*.go" -o -name "*.java" -o -name "*.cs" -o -name "*.php" -o -name "*.swift" -o -name "*.kt" -o -name "*.scala" -o -name "*.rs" -o -name "*.cpp" -o -name "*.c" -o -name "*.h" -o -name "*.hpp" -o -name "*.vue" -o -name "*.svelte" -o -name "*.r" -o -name "*.m" -o -name "*.mm" -o -name "*.sh" -o -name "*.zsh" -o -name "*.fish" -o -name "*.ps1" -o -name "*.bat" -o -name "*.cmd" | head -10
 
           # Try to run lucai on the current directory if src doesn't exist
           if [ -d "./src" ]; then
@@ -81,7 +85,12 @@ jobs:
           fi
 
           cd ..
-          echo "Lucai review completed. File size: $(wc -l < lucai-review.md || echo 0) lines"
+
+          # Calculate duration
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          echo "✅ Lucai review completed in ${DURATION} seconds at $(date)"
+          echo "File size: $(wc -l < lucai-review.md || echo 0) lines"
           echo "First few lines of review:"
           head -10 lucai-review.md || echo "File is empty or doesn't exist"
 
@@ -90,12 +99,16 @@ jobs:
             echo "Creating fallback review message"
             echo "# Code Review Report" > lucai-review.md
             echo "" >> lucai-review.md
+            echo "## ⏱️ Review Timing" >> lucai-review.md
+            echo "- **Started:** $(date)" >> lucai-review.md
+            echo "- **Duration:** ${DURATION} seconds" >> lucai-review.md
+            echo "" >> lucai-review.md
             echo "## 📊 Overall Quality Score: N/A" >> lucai-review.md
             echo "" >> lucai-review.md
             echo "## 📝 Executive Summary" >> lucai-review.md
             echo "" >> lucai-review.md
             echo "No files were found to review in this pull request. This could be because:" >> lucai-review.md
-            echo "- The changes are in files not supported by lucai (currently supports: .js, .jsx, .ts, .tsx, .py, .rb, .go, .java, .cs)" >> lucai-review.md
+            echo "- The changes are in files not supported by lucai (currently supports: .js, .jsx, .ts, .tsx, .py, .rb, .go, .java, .cs, .php, .swift, .kt, .scala, .rs, .cpp, .c, .h, .hpp, .vue, .svelte, .r, .m, .mm, .sh, .zsh, .fish, .ps1, .bat, .cmd)" >> lucai-review.md
             echo "- The files are in a different directory structure than expected" >> lucai-review.md
             echo "- No code files were modified in this PR" >> lucai-review.md
             echo "" >> lucai-review.md

@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+  # Main lucai-cli service
+  lucai:
+    build: .
+    container_name: lucai-cli
+    volumes:
+      # Mount your code directory for review
+      - ${CODE_PATH:-./test-code}:/code:ro
+      # Mount data directory for persistent storage
+      - lucai_data:/app/data
+      # Mount git config for proper git operations
+      - ~/.gitconfig:/home/lucai/.gitconfig:ro
+    environment:
+      - NODE_ENV=production
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+    working_dir: /code
+    profiles:
+      - cli
+    command: ["--help"]
+
+  # Development service with hot reload
+  lucai-dev:
+    build:
+      context: .
+      target: development
+    container_name: lucai-dev
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ${CODE_PATH:-./test-code}:/code:ro
+      - lucai_data:/app/data
+      - ~/.gitconfig:/home/lucai/.gitconfig:ro
+    environment:
+      - NODE_ENV=development
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+    working_dir: /code
+    profiles:
+      - dev
+    command: ["--help"]
+
+  # Web interface service (future enhancement)
+  lucai-web:
+    build: .
+    container_name: lucai-web
+    ports:
+      - "3000:3000"
+    volumes:
+      - lucai_data:/app/data
+    environment:
+      - NODE_ENV=production
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - PORT=3000
+    profiles:
+      - web
+    command: ["node", "bin/lucai.js", "serve", "--port", "3000"]
+
+  # Database service for storing review history
+  lucai-db:
+    image: sqlite:latest
+    container_name: lucai-db
+    volumes:
+      - lucai_data:/data
+    environment:
+      - SQLITE_DATABASE=/data/lucai.db
+    profiles:
+      - db
+
+  # Redis for caching (optional)
+  lucai-cache:
+    image: redis:7-alpine
+    container_name: lucai-cache
+    ports:
+      - "6379:6379"
+    volumes:
+      - lucai_cache:/data
+    command: redis-server --appendonly yes
+    profiles:
+      - cache
+
+  # Code quality tools service
+  lucai-tools:
+    build:
+      context: .
+      dockerfile: Dockerfile.tools
+    container_name: lucai-tools
+    volumes:
+      - ${CODE_PATH:-./test-code}:/code:ro
+    working_dir: /code
+    profiles:
+      - tools
+    command: ["--help"]
+
+volumes:
+  lucai_data:
+    driver: local
+  lucai_cache:
+    driver: local
+
+networks:
+  default:
+    name: lucai-network

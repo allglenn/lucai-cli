@@ -1,0 +1,83 @@
+# Multi-stage Dockerfile for code quality tools
+FROM node:18-alpine as base
+
+# Install system dependencies
+RUN apk add --no-cache \
+    git \
+    bash \
+    curl \
+    python3 \
+    py3-pip \
+    && rm -rf /var/cache/apk/*
+
+# Install global tools
+RUN npm install -g \
+    eslint \
+    prettier \
+    @typescript-eslint/parser \
+    @typescript-eslint/eslint-plugin \
+    eslint-plugin-react \
+    eslint-plugin-vue \
+    stylelint \
+    markdownlint-cli \
+    && pip3 install \
+    flake8 \
+    black \
+    isort \
+    mypy
+
+# Install Go tools
+RUN wget -O go.tar.gz https://go.dev/dl/go1.21.0.linux-amd64.tar.gz && \
+    tar -C /usr/local -xzf go.tar.gz && \
+    rm go.tar.gz
+ENV PATH="/usr/local/go/bin:${PATH}"
+
+# Install Go linting tools
+RUN go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest && \
+    go install github.com/go-critic/go-critic/cmd/gocritic@latest
+
+# Install Rust tools
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
+RUN cargo install clippy
+
+# Install Java tools
+RUN apk add --no-cache openjdk11-jdk && \
+    wget -O checkstyle.jar https://github.com/checkstyle/checkstyle/releases/download/checkstyle-10.12.4/checkstyle-10.12.4-all.jar
+
+# Install PHP tools
+RUN apk add --no-cache php php-json composer && \
+    composer global require squizlabs/php_codesniffer
+
+# Install Ruby tools
+RUN apk add --no-cache ruby ruby-dev && \
+    gem install rubocop
+
+# Install Swift tools
+RUN apk add --no-cache swift
+
+# Install Kotlin tools
+RUN wget -O kotlin.zip https://github.com/JetBrains/kotlin/releases/download/v1.9.10/kotlin-compiler-1.9.10.zip && \
+    unzip kotlin.zip -d /opt && \
+    rm kotlin.zip
+ENV PATH="/opt/kotlinc/bin:${PATH}"
+
+# Install C/C++ tools
+RUN apk add --no-cache clang cppcheck
+
+# Install shell tools
+RUN apk add --no-cache shellcheck
+
+# Create working directory
+WORKDIR /code
+
+# Create a non-root user
+RUN addgroup -g 1001 -S tools && \
+    adduser -S tools -u 1001 -G tools
+
+# Change ownership
+RUN chown -R tools:tools /code
+USER tools
+
+# Default command
+CMD ["bash"]

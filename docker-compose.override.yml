@@ -1,0 +1,25 @@
+# Development overrides for docker-compose.yml
+# This file is automatically loaded by docker-compose
+
+version: '3.8'
+
+services:
+  lucai-dev:
+    build:
+      context: .
+      target: development
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ${CODE_PATH:-./test-code}:/code:ro
+      - lucai_data:/app/data
+      - ~/.gitconfig:/home/lucai/.gitconfig:ro
+    environment:
+      - NODE_ENV=development
+      - DEBUG=lucai:*
+    command: ["npm", "run", "dev"]
+
+  lucai:
+    environment:
+      - NODE_ENV=development
+      - DEBUG=lucai:*

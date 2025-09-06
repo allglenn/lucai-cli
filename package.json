@@ -10,7 +10,19 @@
     "lib": "lib"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node bin/lucai.js --help",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up",
+    "docker:down": "docker-compose down",
+    "docker:dev": "docker-compose --profile dev up",
+    "docker:cli": "docker-compose --profile cli run --rm lucai",
+    "docker:tools": "docker-compose --profile tools run --rm lucai-tools",
+    "docker:review": "docker-compose --profile cli run --rm lucai review --path /code",
+    "docker:review-diff": "docker-compose --profile cli run --rm lucai review --diff",
+    "docker:configure": "docker-compose --profile cli run --rm lucai configure",
+    "docker:logs": "docker-compose logs -f",
+    "docker:clean": "docker-compose down -v --remove-orphans && docker system prune -f"
   },
   "keywords": [
     "code-review",

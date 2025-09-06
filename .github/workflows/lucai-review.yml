@@ -66,6 +66,10 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
         run: |
+          # Record start time
+          START_TIME=$(date +%s)
+          echo "🚀 Starting Lucai code review at $(date)"
+          
           cd head
           echo "Current directory: $(pwd)"
           echo "Available files:"
@@ -81,7 +85,12 @@ jobs:
           fi
 
           cd ..
-          echo "Lucai review completed. File size: $(wc -l < lucai-review.md || echo 0) lines"
+          
+          # Calculate duration
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          echo "✅ Lucai review completed in ${DURATION} seconds at $(date)"
+          echo "File size: $(wc -l < lucai-review.md || echo 0) lines"
           echo "First few lines of review:"
           head -10 lucai-review.md || echo "File is empty or doesn't exist"
 
@@ -89,6 +98,10 @@ jobs:
           if [ ! -s lucai-review.md ]; then
             echo "Creating fallback review message"
             echo "# Code Review Report" > lucai-review.md
+            echo "" >> lucai-review.md
+            echo "## ⏱️ Review Timing" >> lucai-review.md
+            echo "- **Started:** $(date)" >> lucai-review.md
+            echo "- **Duration:** ${DURATION} seconds" >> lucai-review.md
             echo "" >> lucai-review.md
             echo "## 📊 Overall Quality Score: N/A" >> lucai-review.md
             echo "" >> lucai-review.md
